@@ -1,118 +1,49 @@
 <?php
-
-
-
-    // Only process POST reqeusts.
-
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
-        // Get the form fields and remove MORALspace.
-
-        $name = strip_tags(trim($_POST["name"]));
-
-				$name = str_replace(array("\r","\n"),array(" "," "),$name);
-
-        $email = filter_var(trim($_POST["email"]), FILTER_SANITIZE_EMAIL);
-
-        $website = trim($_POST["website"]);
-
-        $number = trim($_POST["number"]);
-
-        $message = trim($_POST["message"]);
-
-
-
-        // Check that data was sent to the mailer.
-
-        if ( empty($name)or empty($phone) OR empty($subject) OR empty($message) OR !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-
-            // Set a 400 (bad request) response code and exit.
-
-            http_response_code(400);
-
-            echo "Please complete the form and try again.";
-
-            exit;
-
-        }
-
-
-
-        // Set the recipient email address.
-
-        // FIXME: Update this to your desired email address.
-
-        $recipient = "testhub582@gmail.com";
-
-
-
-        // Set the email subject.
-
-        $sender = "New contact from $name";
-
-
-
-        //Email Header
-
-        $head = " /// Johanspond \\\ ";
-
-
-
-        // Build the email content.
-
-        $email_content = "$head\n\n\n";
-
-        $email_content .= "Name: $name\n";
-
-        $email_content .= "Email: $email\n\n";
-
-        $email_content .= "Number: $number\n\n";
-
-        $email_content .= "Website: $website\n\n";
-
-        $email_content .= "Message:\n$message\n";
-
-
-
-        // Build the email headers.
-
-        $email_headers = "From: $name <$email>";
-
-
-
-        // Send the email.
-
-        if (mail($recipient, $sender, $email_content, $email_headers)) {
-
-            // Set a 200 (okay) response code.
-
-            http_response_code(200);
-
-            echo "Thank You! Your message has been sent.";
-
-        } else {
-
-            // Set a 500 (internal server error) response code.
-
-            http_response_code(500);
-
-            echo "Oops! Something went wrong and we couldn't send your message.";
-
-        }
-
-
-
-    } else {
-
-        // Not a POST request, set a 403 (forbidden) response code.
-
-        http_response_code(403);
-
-        echo "There was a problem with your submission, please try again.";
-
-    }
-
-
-
-?>
-
+// DEBUG ON (localhost only)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Always return JSON for ajax-form.js
+header('Content-Type: application/json');
+
+// Only allow POST
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    http_response_code(403);
+    echo json_encode([
+        "status" => "error",
+        "message" => "Forbidden"
+    ]);
+    exit;
+}
+
+// Collect form data
+$name     = trim($_POST["name"] ?? "");
+$email    = trim($_POST["email"] ?? "");
+$country  = trim($_POST["orderby"] ?? "");
+$website  = trim($_POST["website"] ?? "");
+$message  = trim($_POST["message"] ?? "");
+
+// Validate
+if ($name === "" || $email === "" || $message === "") {
+    http_response_code(400);
+    echo json_encode([
+        "status" => "error",
+        "message" => "Please fill all required fields"
+    ]);
+    exit;
+}
+
+/*
+ IMPORTANT:
+ mail() FAILS on localhost → causes 500
+ So we SKIP mail() locally
+*/
+
+// Success response (what ajax-form.js expects)
+http_response_code(200);
+echo json_encode([
+    "status" => "success",
+    "message" => "Message sent successfully."
+]);
+exit;

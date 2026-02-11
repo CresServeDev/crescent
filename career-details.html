@@ -683,8 +683,7 @@
                                     </a>
                                 </div>
                             </div>
-                            <div class="sidebar__widget sidebar__widget-bg"
-                                data-background="assets/img/bg/reset.webp">
+                            <div class="sidebar__widget sidebar__widget-bg" data-background="assets/img/bg/reset.webp">
                                 <div class="sidebar__contact">
                                     <h4 class="title">Reach out to us whenever you need</h4>
                                     <p>We are committed to excellence at our IT solutions company.</p>
@@ -703,7 +702,7 @@
                                                     fill="currentColor" />
                                             </svg>
                                         </div>
-                                        <div class="content">   
+                                        <div class="content">
                                             <span>Call For More Info</span>
                                             <a href="tel:0123456789">+91 7738262069</a>
                                         </div>
@@ -732,7 +731,8 @@
                 <div class="contact__form-wrap contact__form-wrap-four">
                     <h3 class="title">Apply Form</h3>
                     <p>Digital Marketing Executive</p>
-                    <form id="contact-form" class="contact__form-two" enctype="multipart/form-data">
+                    <form id="contact-form" class="contact__form-two" action="apply.php" method="POST"
+                        enctype="multipart/form-data">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-grp">
@@ -766,30 +766,13 @@
                         </div>
                         <div class="mb-3">
                             <label for="formFile" class="form-label">Upload Your CV</label>
-                            <input class="form-control" name="cv" type="file" id="formFile">
+                            <input class="form-control" name="cv" type="file" id="formFile" accept=".pdf,.doc,.docx"
+                                required>
                         </div>
                         <button type="submit" class="tg-btn">Submit Now</button>
                     </form>
-                    <!-- <form action="https://formspree.io/f/mbdajygr" method="POST" enctype="multipart/form-data">
 
-                        <input type="text" name="name" placeholder="Your Name*" required>
-
-                        <input type="email" name="email" placeholder="Email*" required>
-
-                        <select name="country" required>
-                            <option value="">Select Country *</option>
-                            <option>India</option>
-                        </select>
-
-                        <input type="url" name="website" placeholder="Portfolio">
-
-                        <textarea name="message" placeholder="Write your message*" required></textarea>
-
-                        <input type="file" name="cv" accept=".pdf,.doc,.docx" required>
-
-                        <button type="submit" class="tg-btn">Submit Now</button>
-                    </form> -->
-                    <!-- <p class="ajax-response mb-0"></p> -->
+                    <p class="ajax-response mb-0"></p>
                 </div>
             </div>
         </section>
@@ -940,7 +923,32 @@
     <!-- footer-area-end -->
 
 
+    <script>
+        document.getElementById("contact-form").addEventListener("submit", function (e) {
+            e.preventDefault();
 
+            const form = this;
+            const response = document.querySelector(".ajax-response");
+            const formData = new FormData(form);
+
+            fetch("apply.php", {
+                method: "POST",
+                body: formData
+            })
+                .then(res => res.text())
+                .then(data => {
+                    if (data.trim() === "success") {
+                        response.innerHTML = "✅ Application submitted successfully!";
+                        form.reset();
+                    } else {
+                        response.innerHTML = "❌ " + data;
+                    }
+                })
+                .catch(() => {
+                    response.innerHTML = "❌ Something went wrong.";
+                });
+        });
+    </script>
 
 
 
