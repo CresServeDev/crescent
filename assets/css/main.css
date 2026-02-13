@@ -14066,7 +14066,10 @@ blockquote cite {
 .footer__logo {
   margin-bottom: 20px;
 }
-
+.footer__logo img {
+  height: 90px;
+  width: 90px;
+}
 @media (max-width: 991.98px) {
   .footer__logo img {
     width: 50px;
