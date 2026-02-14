@@ -114,3 +114,60 @@
 
 ?>
  -->
+
+
+<?php
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require '../PHPMailer/src/Exception.php';
+require '../PHPMailer/src/PHPMailer.php';
+require '../PHPMailer/src/SMTP.php';
+
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    exit("Invalid request");
+}
+
+// -------- SANITIZE --------
+$fname   = htmlspecialchars($_POST['fname'] ?? '');
+$lname   = htmlspecialchars($_POST['lname'] ?? '');
+$email   = filter_var($_POST['email'] ?? '', FILTER_VALIDATE_EMAIL);
+$number  = htmlspecialchars($_POST['number'] ?? '');
+$message = htmlspecialchars($_POST['messages'] ?? '');
+
+if (!$fname || !$email || !$number) {
+    exit("Required fields missing");
+}
+
+// -------- MAIL --------
+$mail = new PHPMailer(true);
+
+try {
+    $mail->isSMTP();
+    $mail->Host       = 'smtp.gmail.com';
+    $mail->SMTPAuth   = true;
+    $mail->Username   = 'contact.crescenttechno@gmail.com';      // 🔴 change
+    $mail->Password   = 'vtdotbcohduazfpw';        // 🔴 Gmail App Password
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+    $mail->Port       = 587;
+
+    $mail->setFrom($email, $fname);
+    $mail->addReplyTo($email, $fname);
+    $mail->addAddress('support@crescenttechnoserve.com');       // 🔴 receive here
+
+    $mail->isHTML(true);
+    $mail->Subject = "New Contact Message from $fname";
+    $mail->Body    = "
+        <h3>New Contact Message</h3>
+        <p><strong>Name:</strong> $fname $lname</p>
+        <p><strong>Email:</strong> $email</p>
+        <p><strong>Phone:</strong> $number</p>
+        <p><strong>Message:</strong><br>$message</p>
+    ";
+
+    $mail->send();
+    echo "success";
+
+} catch (Exception $e) {
+    echo "Mailer Error: {$mail->ErrorInfo}";
+}

@@ -2277,16 +2277,17 @@
                         </div>
                         <div class="col-lg-6" data-sal="slide-left" data-sal-duration="700" data-sal-delay="100">
                             <div class="contact__form-wrap">
-                                <form id="contact-form" action="" class="comment-form" method="POST">
+                                <form id="contactFormHome" action="scripts/contact.php" class="comment-form"
+                                    method="POST">
                                     <div class="row gutter-20">
                                         <div class="col-md-6">
                                             <div class="form-grp">
-                                                <input type="text" name="name" placeholder="First Name" required>
+                                                <input type="text" name="fname" placeholder="First Name" required>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-grp">
-                                                <input type="text" name="name" placeholder="Last Name">
+                                                <input type="text" name="lname" placeholder="Last Name">
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -2302,15 +2303,14 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <!-- <div class="form-grp">
-                                        <input type="url" name="website" placeholder="Website Url">
-                                    </div> -->
                                     <div class="form-grp">
                                         <textarea name="messages" placeholder="Comments . . ."></textarea>
                                     </div>
+                                    <div class="g-recaptcha" data-sitekey="6Ld_SWssAAAAAFNvqGAjPLvlWrLmElow1SaOurDY">
+                                    </div>
                                     <button type="submit" class="tg-btn">Send Message</button>
                                 </form>
-                                <p class="ajax-response mb-0"></p>
+                                <div class="ajax-response mb-3"></div>
                             </div>
                         </div>
                     </div>
@@ -2325,7 +2325,7 @@
     <!-- main-area-end -->
 
     <!-- footer-area -->
-    <footer class="footer__area footer__bg fix">
+    <footer class="footer__area footer__bg fix mt-2">
         <div class="container">
             <div class="footer__cta-wrap" data-sal="slide-up" data-sal-duration="700" data-sal-delay="100">
                 <h2 class="title">Let's Talk
@@ -2465,8 +2465,7 @@
 
 
 
-
-
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <!-- JS here -->
     <script src="assets/js/vendor/jquery-3.6.0.min.js"></script>
     <script src="assets/js/bootstrap.min.js"></script>
@@ -2479,6 +2478,61 @@
     <script src="assets/js/ajax-form.js"></script>
     <script src="assets/js/sal.js"></script>
     <script src="assets/js/main.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const form = document.getElementById("contactFormHome");
+            const responseBox = document.querySelector(".ajax-response");
+
+            if (!form) {
+                console.log("Form not found");
+                return;
+            }
+
+            form.addEventListener("submit", function (e) {
+                e.preventDefault(); // STOP normal submission
+
+                const button = form.querySelector("button[type='submit']");
+                const originalText = button.innerHTML;
+
+                // Disable button
+                button.disabled = true;
+                button.innerHTML = "Sending...";
+
+                const formData = new FormData(form);
+
+                fetch("scripts/contact.php", {
+                    method: "POST",
+                    body: formData
+                })
+                    .then(res => res.text())
+                    .then(data => {
+                        if (data.trim() === "success") {
+                            responseBox.innerHTML = "✅ Message sent successfully!";
+                            responseBox.style.color = "green";
+                            form.reset();
+                            if (typeof grecaptcha !== "undefined") {
+                                grecaptcha.reset();
+                            }
+                        } else {
+                            responseBox.innerHTML = "❌ " + data;
+                            responseBox.style.color = "red";
+                        }
+                    })
+                    .catch(error => {
+                        responseBox.innerHTML = "❌ Error sending message.";
+                        responseBox.style.color = "red";
+                        console.error(error);
+                    })
+                    .finally(() => {
+                        button.disabled = false;
+                        button.innerHTML = originalText;
+                    });
+            });
+
+        });
+    </script>
 </body>
 
 </html>
